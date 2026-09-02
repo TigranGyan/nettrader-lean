@@ -2,6 +2,7 @@ using NetTrader.Lean.Algorithm.Common;
 using QuantConnect.Algorithm;
 using QuantConnect.Algorithm.Framework.Portfolio;
 using QuantConnect.Algorithm.Framework.Risk;
+using QuantConnect.Data.UniverseSelection;
 
 namespace NetTrader.Lean.Algorithm.RiskManagement;
 
@@ -10,11 +11,8 @@ namespace NetTrader.Lean.Algorithm.RiskManagement;
 /// prompt instruction ("Max 1 per correlation group") that was never actually enforced in code — see
 /// docs/PLAN.md. LEAN has no built-in notion of arbitrary user-defined correlation groups, so this is
 /// new code, not a port.
-///
-/// TODO(Phase 0, blocking): verify IRiskManagementModel.ManageRisk signature against the pinned LEAN
-/// version — not compiled in the authoring sandbox (no dotnet SDK there).
 /// </summary>
-public sealed class CorrelationGroupExposureRiskManagementModel : IRiskManagementModel
+public sealed class CorrelationGroupExposureRiskManagementModel : RiskManagementModel
 {
     private readonly decimal _maxGroupExposurePercent;
 
@@ -23,7 +21,7 @@ public sealed class CorrelationGroupExposureRiskManagementModel : IRiskManagemen
         _maxGroupExposurePercent = maxGroupExposurePercent;
     }
 
-    public IEnumerable<IPortfolioTarget> ManageRisk(QCAlgorithm algorithm, IPortfolioTarget[] targets)
+    public override IEnumerable<IPortfolioTarget> ManageRisk(QCAlgorithm algorithm, IPortfolioTarget[] targets)
     {
         var groupTotals = new Dictionary<SymbolConfig.CorrelationGroup, decimal>();
         var result = new List<IPortfolioTarget>();

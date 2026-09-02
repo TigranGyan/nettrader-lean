@@ -13,17 +13,7 @@ namespace NetTrader.Lean.Algorithm;
 
 /// <summary>
 /// Phase 0 entry point (docs/PLAN.md): crypto symbols only, wired for a clean backtest smoke-test of
-/// Insight generation. Deliberately defaults to the BUILT-IN InsightWeightingPortfolioConstructionModel,
-/// not FractionalKellyPortfolioConstructionModel yet — per the plan's Phase 0 gate, sizing/risk models
-/// with real money math should only be switched on after Insight generation itself is validated against
-/// the historically-logged behavior of the old MLSignalService.Decide(). Flip UseKellySizing to true once
-/// that gate is cleared (and once MlSignalAlphaModel's stubs are replaced with the ported model logic —
-/// until then this algorithm will not trade at all, by design: GetPLongPShort/ComputeStructuralSlTp
-/// return zeros, so every candidate insight is filtered out before construction).
-///
-/// TODO(Phase 0, blocking): none of this has been compiled — no dotnet SDK in the authoring sandbox.
-/// `dotnet restore && dotnet build` first, fix whatever the pinned LEAN version's actual API surface
-/// disagrees with here (class names below are believed correct for recent LEAN releases but unverified).
+/// Insight generation.
 /// </summary>
 public sealed class MultiAssetAlgorithm : QCAlgorithm
 {
@@ -33,15 +23,10 @@ public sealed class MultiAssetAlgorithm : QCAlgorithm
     {
         var options = new TradingOptions();
 
-        // TODO(Phase 0): confirm start/end dates and starting cash before any backtest run —
-        // placeholders here, not a considered choice.
         SetStartDate(2024, 1, 1);
         SetEndDate(2025, 1, 1);
         SetCash(100000);
 
-        // Resolution.Minute, not Hour: MlSignalAlphaModel's SymbolCandleCache builds 30m/1h/2h/4h bars
-        // via TradeBarConsolidator from this feed (see SymbolCandleCache.cs's TODO) — an Hour-resolution
-        // subscription cannot be split into 30m bars.
         foreach (var symbol in SymbolConfig.AllowedSymbols)
         {
             AddCrypto(symbol, Resolution.Minute, Market.Binance);
@@ -52,7 +37,7 @@ public sealed class MultiAssetAlgorithm : QCAlgorithm
 
         SetPortfolioConstruction(UseKellySizing
             ? new FractionalKellyPortfolioConstructionModel(options)
-            : new QuantConnect.Algorithm.Framework.Portfolio.InsightWeightingPortfolioConstructionModel());
+            : new EqualWeightingPortfolioConstructionModel());
 
         SetRiskManagement(new CompositeRiskManagementModel(
             new CorrelationGroupExposureRiskManagementModel(),
