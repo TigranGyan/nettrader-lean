@@ -3,11 +3,17 @@ bin/
 obj/
 *.user
 
-## LEAN data & models (large binaries — do not commit)
+## LEAN historical data — large, download via Lean CLI, do not commit
 /data/*
 !/data/.gitkeep
+
+## ML model artifacts — ModelLong.zip/ModelShort.zip ARE committed (~800KB each, ported from
+## nettrader/NetTrader.Worker/mlmodel/), small enough not to need Git LFS. Only ignore anything else
+## that might land here (retraining scratch output, larger future models).
 /models/*
 !/models/.gitkeep
+!/models/ModelLong.zip
+!/models/ModelShort.zip
 
 ## LEAN CLI local config (contains local paths, not secrets by default, but keep out anyway)
 .idea/

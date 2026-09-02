@@ -21,6 +21,14 @@
     <!-- TODO(Phase 0): verify these package IDs/versions against the LEAN release actually pinned. -->
     <PackageReference Include="QuantConnect.Lean.Engine" Version="2.5.*" />
     <PackageReference Include="Microsoft.ML" Version="3.0.1" />
+    <!--
+      Version pinned to EXACTLY match nettrader/NetTrader.Infrastructure/NetTrader.Infrastructure.csproj
+      (and Application/Api/Worker, all on 2.7.1) — do not bump this independently of re-validating
+      MlFeatureBuilder's output against the original MLSignalService.ComputeFeatures on identical candles,
+      since an indicator library version bump can silently change warm-up/smoothing behavior and desync
+      live features from what ModelLong.zip/ModelShort.zip were trained on.
+    -->
+    <PackageReference Include="Skender.Stock.Indicators" Version="2.7.1" />
   </ItemGroup>
 
 </Project>

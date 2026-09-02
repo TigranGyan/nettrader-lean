@@ -39,9 +39,12 @@ public sealed class MultiAssetAlgorithm : QCAlgorithm
         SetEndDate(2025, 1, 1);
         SetCash(100000);
 
+        // Resolution.Minute, not Hour: MlSignalAlphaModel's SymbolCandleCache builds 30m/1h/2h/4h bars
+        // via TradeBarConsolidator from this feed (see SymbolCandleCache.cs's TODO) — an Hour-resolution
+        // subscription cannot be split into 30m bars.
         foreach (var symbol in SymbolConfig.AllowedSymbols)
         {
-            AddCrypto(symbol, Resolution.Hour, Market.Binance);
+            AddCrypto(symbol, Resolution.Minute, Market.Binance);
         }
 
         var insightPeriod = TimeSpan.FromHours(4);
