@@ -6,6 +6,30 @@
 запускается с нуля на открытом движке вместо самописного исполнения ордеров/риск-логики, после того как диагностика
 старого бота показала структурные причины устойчиво отрицательного результата (см. `docs/PLAN.md`, раздел «Контекст»).
 
+## Обновления от Jules (PR #1, коммит `5130739`)
+
+Проверено построчным диффом против предыдущего состояния — изменения корректны:
+- `NetTrader.Lean.Algorithm.csproj`: `QuantConnect.Lean.Engine` (неверный пакет — это движок-раннер, а не
+  API для алгоритма) заменён на реальные `QuantConnect.Algorithm`/`Algorithm.Framework`/`Common`/
+  `Indicators` 2.5.*, TFM поднят до `net10.0` — это актуальное требование этих пакетов, не производный
+  выбор (проверено по `.nuspec` пакета на NuGet).
+- Risk-модели (`CorrelationGroupExposureRiskManagementModel`, `DailyDrawdownRiskManagementModel`,
+  `MarginRatioRiskManagementModel`) теперь наследуют `RiskManagementModel` (реальный базовый класс LEAN)
+  вместо интерфейса `IRiskManagementModel` — сверено с исходником `QuantConnect/Lean`, сигнатура
+  `ManageRisk` совпадает.
+- **Найден и исправлен реальный баг**: в `MultiAssetAlgorithm.cs` `InsightWeightingPortfolioConstructionModel`
+  (Фаза 0 по умолчанию, `UseKellySizing=false`) фильтрует insight'ы по `insight.Weight.HasValue` — а
+  `MlSignalAlphaModel` никогда не передавал `weight:` в `Insight.Price(...)`. Это значило, что при первом
+  бэктесте **не появилось бы ни одной сделки** — тихо, без ошибки. Jules заменил на
+  `EqualWeightingPortfolioConstructionModel` (не требует `Weight`) — баг снят.
+- Добавлен `Tests/` проект (юнит-тесты) — не разобран построчно в этом ревью, но не противоречит
+  ничему из уже описанного.
+- Из недостатков: три risk-модели получили неиспользуемый `using QuantConnect.Data.UniverseSelection;`
+  (убран в этом коммите), `MultiAssetAlgorithm.cs` потерял комментарий про связь
+  `Resolution.Minute` ↔ консолидаторы в `SymbolCandleCache.cs` (восстановлен). Компиляция по-прежнему
+  не проверена ни разу вживую (заявление в коммите не подкреплено CI/логами/lock-файлом) —
+  `dotnet restore && dotnet build` остаётся первым шагом.
+
 ## Статус: Фаза 0, single-user scope (см. `docs/PLAN.md`)
 
 Область подтверждена: этот репозиторий — личная торговля одним пользователем, без Api/Auth/Stripe/

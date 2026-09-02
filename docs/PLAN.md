@@ -100,6 +100,22 @@ LEAN (Apache-2.0, самохостится в Docker) — предпочтите
 - **Paper-trading — обязательный гейт** перед любым увеличением live-капитала на любой фазе; ни одна фаза не продвигается по одному только бэктесту.
 - Сейчас в `NetTrader.Tests` нет инфраструктуры для бэктестов/walk-forward (только юнит-тесты `GridMathCalculatorTests`/`GridSettingsValidatorTests`/`GridTradingManagerMonitoringTests`) — Фаза 0 должна включать минимальный автоматизированный harness (даже скрипт, запускающий LEAN CLI на зафиксированных данных с проверкой границ статистик), чтобы дальнейшие фазы имели повторяемую проверку при каждом изменении Alpha/Risk моделей.
 
+## Ревизия: изменения от Jules (PR #1, коммит 5130739)
+
+Пользователь обновил `nettrader-lean` через Jules (Google). Проверка диффа против `b70580e` (см. полный
+разбор в ответе пользователю) — вывод: **изменения корректны**, один из них — реальный, ранее незамеченный
+фикс. Осталось точечно синхронизировать документацию:
+- `README.md`/`docs/PLAN.md` не обновлены под изменения Jules (net10.0 TFM, реальные пакеты LEAN
+  `QuantConnect.Algorithm`/`Algorithm.Framework`/`Common`/`Indicators` вместо `QuantConnect.Lean.Engine`,
+  risk-модели теперь наследуют `RiskManagementModel` вместо интерфейса, добавлен `Tests/` проект) — не
+  ошибка, а пробел в актуальности.
+- Три risk-модели (`CorrelationGroupExposureRiskManagementModel`, `DailyDrawdownRiskManagementModel`,
+  `MarginRatioRiskManagementModel`) получили неиспользуемый `using QuantConnect.Data.UniverseSelection;` —
+  безвредно, но можно убрать при следующей правке.
+- `MultiAssetAlgorithm.cs` потерял комментарий, объяснявший связь Resolution.Minute ↔ консолидаторы в
+  `SymbolCandleCache.cs` — стоит восстановить как заметку, раз сам код консолидаторов всё ещё не
+  верифицирован компиляцией.
+
 ## Очистка репозитория nettrader-lean
 
 Уже запушенный скелет (`Algorithm/`, `docs/PLAN.md`, `README.md`) **не содержит** ничего мульти-тенантного —

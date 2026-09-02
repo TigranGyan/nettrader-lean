@@ -2,7 +2,6 @@ using NetTrader.Lean.Algorithm.Common;
 using QuantConnect.Algorithm;
 using QuantConnect.Algorithm.Framework.Portfolio;
 using QuantConnect.Algorithm.Framework.Risk;
-using QuantConnect.Data.UniverseSelection;
 
 namespace NetTrader.Lean.Algorithm.RiskManagement;
 
