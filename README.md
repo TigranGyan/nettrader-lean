@@ -1,6 +1,12 @@
 # NetTrader-Lean
 
+[![build](https://github.com/TigranGyan/nettrader-lean/actions/workflows/build.yml/badge.svg)](https://github.com/TigranGyan/nettrader-lean/actions/workflows/build.yml)
+
 Мультиактивный (крипто + акции) систематический торговый движок на [QuantConnect LEAN](https://github.com/QuantConnect/Lean).
+
+**Реальный статус сборки — только этот значок или вкладка [Actions](https://github.com/TigranGyan/nettrader-lean/actions).**
+Заявление о прошедшей сборке в тексте коммита (в чате, PR-описании и т.п.) — не доказательство; несколько
+раз в истории этого репозитория такое заявление оказывалось пустым (см. `docs/PLAN.md`).
 
 Наследник проекта [`nettrader`](https://github.com/TigranGyan/nettrader) (самописный крипто-бот на Binance Futures) —
 запускается с нуля на открытом движке вместо самописного исполнения ордеров/риск-логики, после того как диагностика

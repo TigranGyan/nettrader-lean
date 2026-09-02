@@ -1,0 +1,35 @@
+name: build
+
+# Exists so "does this compile" is a fact anyone can check (a green/red status + a real log in the
+# Actions tab), not something that has to be taken on an agent's word in a commit message — see
+# docs/PLAN.md, "Ревизия: второй коммит Jules" for why this was added.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore Algorithm
+        run: dotnet restore Algorithm/NetTrader.Lean.Algorithm.csproj
+
+      - name: Build Algorithm
+        run: dotnet build Algorithm/NetTrader.Lean.Algorithm.csproj --no-restore --configuration Release
+
+      - name: Restore Tests
+        run: dotnet restore Tests/NetTrader.Lean.Algorithm.Tests.csproj
+
+      - name: Build Tests
+        run: dotnet build Tests/NetTrader.Lean.Algorithm.Tests.csproj --no-restore --configuration Release
+
+      - name: Run Tests
+        run: dotnet test Tests/NetTrader.Lean.Algorithm.Tests.csproj --no-build --configuration Release --logger "console;verbosity=detailed"
