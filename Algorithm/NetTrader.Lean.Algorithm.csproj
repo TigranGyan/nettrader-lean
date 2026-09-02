@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--
+      TODO(Phase 0, blocking): this project has NOT been restored/built anywhere yet — the sandbox
+      that authored it has no dotnet SDK. Before writing any more algorithm code:
+        dotnet restore
+        dotnet build
+      and fix whatever NuGet package IDs/versions/TargetFramework mismatch shows up. LEAN's own
+      TargetFramework tracks .NET LTS releases and moves over time — pin the exact LEAN
+      version/commit here once restore succeeds (see docs/PLAN.md, Phase 0).
+    -->
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>NetTrader.Lean.Algorithm</RootNamespace>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- TODO(Phase 0): verify these package IDs/versions against the LEAN release actually pinned. -->
+    <PackageReference Include="QuantConnect.Lean.Engine" Version="2.5.*" />
+    <PackageReference Include="Microsoft.ML" Version="3.0.1" />
+  </ItemGroup>
+
+</Project>

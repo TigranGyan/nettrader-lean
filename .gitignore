@@ -1,0 +1,22 @@
+## .NET
+bin/
+obj/
+*.user
+
+## LEAN data & models (large binaries — do not commit)
+/data/*
+!/data/.gitkeep
+/models/*
+!/models/.gitkeep
+
+## LEAN CLI local config (contains local paths, not secrets by default, but keep out anyway)
+.idea/
+.vs/
+.lean/
+
+## Secrets / credentials — NEVER commit
+*.env
+.env.*
+config.json
+lean.json
+**/credentials*.json
