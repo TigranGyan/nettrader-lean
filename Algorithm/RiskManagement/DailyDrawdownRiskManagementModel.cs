@@ -1,6 +1,7 @@
 using QuantConnect.Algorithm;
 using QuantConnect.Algorithm.Framework.Portfolio;
 using QuantConnect.Algorithm.Framework.Risk;
+using QuantConnect.Data.UniverseSelection;
 
 namespace NetTrader.Lean.Algorithm.RiskManagement;
 
@@ -9,13 +10,8 @@ namespace NetTrader.Lean.Algorithm.RiskManagement;
 /// pause new entries past a daily-loss threshold, force-flat everything past an emergency threshold.
 /// LEAN ships MaximumDrawdownPercentPortfolio for the "liquidate everything" case; this model adds the
 /// softer "pause new entries" behavior nettrader had, which has no built-in LEAN equivalent.
-///
-/// TODO(Phase 0, blocking): verify against the pinned LEAN version's IRiskManagementModel signature and
-/// Portfolio.TotalPortfolioValue semantics — not compiled in the authoring sandbox (no dotnet SDK there).
-/// TODO: this tracks the day's starting equity in memory; confirm this survives LEAN's own day-rollover
-/// and live-deployment restart semantics before relying on it, rather than assuming it does.
 /// </summary>
-public sealed class DailyDrawdownRiskManagementModel : IRiskManagementModel
+public sealed class DailyDrawdownRiskManagementModel : RiskManagementModel
 {
     private readonly decimal _dailyDrawdownPausePercent;
     private readonly decimal _emergencyStopBalancePercent;
@@ -30,7 +26,7 @@ public sealed class DailyDrawdownRiskManagementModel : IRiskManagementModel
         _initialCapital = initialCapital;
     }
 
-    public IEnumerable<IPortfolioTarget> ManageRisk(QCAlgorithm algorithm, IPortfolioTarget[] targets)
+    public override IEnumerable<IPortfolioTarget> ManageRisk(QCAlgorithm algorithm, IPortfolioTarget[] targets)
     {
         var now = algorithm.Time.Date;
         var currentValue = algorithm.Portfolio.TotalPortfolioValue;

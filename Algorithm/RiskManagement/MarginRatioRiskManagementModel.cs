@@ -1,6 +1,7 @@
 using QuantConnect.Algorithm;
 using QuantConnect.Algorithm.Framework.Portfolio;
 using QuantConnect.Algorithm.Framework.Risk;
+using QuantConnect.Data.UniverseSelection;
 
 namespace NetTrader.Lean.Algorithm.RiskManagement;
 
@@ -8,12 +9,8 @@ namespace NetTrader.Lean.Algorithm.RiskManagement;
 /// Blocks/reduces new targets as margin usage approaches a configured ceiling. This existed nowhere
 /// in nettrader — the old code only checked "is there enough free balance for this trade's margin",
 /// never how close the whole book is to a liquidation-triggering margin ratio. See docs/PLAN.md.
-///
-/// TODO(Phase 0, blocking): verify Portfolio.TotalMarginUsed / TotalPortfolioValue field names and the
-/// IRiskManagementModel.ManageRisk signature against the pinned LEAN version — not compiled in the
-/// authoring sandbox (no dotnet SDK there).
 /// </summary>
-public sealed class MarginRatioRiskManagementModel : IRiskManagementModel
+public sealed class MarginRatioRiskManagementModel : RiskManagementModel
 {
     private readonly decimal _maxMarginRatio;
 
@@ -22,7 +19,7 @@ public sealed class MarginRatioRiskManagementModel : IRiskManagementModel
         _maxMarginRatio = maxMarginRatio;
     }
 
-    public IEnumerable<IPortfolioTarget> ManageRisk(QCAlgorithm algorithm, IPortfolioTarget[] targets)
+    public override IEnumerable<IPortfolioTarget> ManageRisk(QCAlgorithm algorithm, IPortfolioTarget[] targets)
     {
         var totalPortfolioValue = algorithm.Portfolio.TotalPortfolioValue;
         if (totalPortfolioValue <= 0)
