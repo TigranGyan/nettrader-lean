@@ -16,6 +16,15 @@ obj/
 !/models/ModelShort.zip
 /Algorithm/models/
 
+## Lean CLI backtest output — the FIRST run (Algorithm/backtests/2026-09-03_11-29-00/) is committed on
+## purpose as evidence the ML signal genuinely fires (see README.md, "Phase 0 смоук-тест"). Every run
+## after that should NOT be committed in full — per-Insight result JSON scales to tens of MB per run and
+## would bloat git history unboundedly. Keep only a run's summary.json/log.txt by hand if it needs to be
+## evidenced; ignore the rest by default.
+/Algorithm/backtests/*/*.json
+/Algorithm/backtests/*/*/*.json
+!/Algorithm/backtests/2026-09-03_11-29-00/**
+
 ## LEAN CLI local config (contains local paths, not secrets by default, but keep out anyway)
 .idea/
 .vs/
