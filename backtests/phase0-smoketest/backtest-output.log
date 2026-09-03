@@ -1,0 +1,187 @@
+  Determining projects to restore...
+  Restored /LeanCLI/NetTrader.Lean.Algorithm.csproj (in 1.45 sec).
+  NetTrader.Lean.Algorithm -> /Compile/bin/Algorithm.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:06.94
+20260903 11:29:13.955 TRACE:: Composer(): Loading Assemblies from
+/Lean/Launcher/bin/Debug
+20260903 11:29:14.575 TRACE::
+Composer.LoadPartsSafely(/Lean/Launcher/bin/Debug/System.Private.ServiceModel.dl
+l): Skipping FileLoadException: Could not load file or assembly
+'/Lean/Launcher/bin/Debug/System.Private.ServiceModel.dll'. The located
+assembly's manifest definition does not match the assembly reference.
+(0x80131040)
+20260903 11:29:15.076 TRACE:: Python for .NET Assembly: Python.Runtime,
+Version=2.0.65.0, Culture=neutral, PublicKeyToken=5000fea6cba702dd
+20260903 11:29:16.204 TRACE:: Engine.Main(): LEAN ALGORITHMIC TRADING ENGINE
+v2.5.0.0 Mode: DEBUG (64bit) Host: devbox
+20260903 11:29:16.215 TRACE:: Engine.Main(): Started 11:29 AM
+20260903 11:29:16.254 TRACE:: JobQueue.NextJob(): Selected Algorithm.dll
+20260903 11:29:16.365 TRACE:: AlgorithmManager.CreateTokenBucket(): Initializing
+LeakyBucket: Capacity: 120 RefillAmount: 18 TimeInterval: 1440
+20260903 11:29:16.378 TRACE:: Engine.Run(): Resource limits '0' CPUs. 2147483647
+MB RAM.
+20260903 11:29:16.379 TRACE:: TextSubscriptionDataSourceReader.SetCacheSize():
+Setting cache size to 71582788 items
+20260903 11:29:17.342 TRACE:: Loader.TryCreateILAlgorithm(): Loading only the
+algorithm assembly
+20260903 11:29:17.704 TRACE:: Loader.TryCreateILAlgorithm(): Loaded Main
+20260903 11:29:17.711 TRACE:: LocalObjectStore.Initialize(): Storage Root:
+/Storage. StorageFileCount 9999999. StorageLimit 10240MB. StoragePermissions
+Read=True Write=True Delete=True
+20260903 11:29:17.742 TRACE:: HistoryProviderManager.Initialize(): history
+providers [SubscriptionDataReaderHistoryProvider]
+20260903 11:29:17.748 TRACE:: BaseSetupHandler.Setup(LocalPlatform): UID: 0,
+PID: -526400478, Version: 2.5.0.0, Source: WebIDE
+20260903 11:29:17.760 TRACE:: SecurityPortfolioManager.SetAccountCurrency():
+setting account currency to USDT
+20260903 11:29:17.890 TRACE:: WeightedWorkScheduler(): will use 4 workers and
+MaxWorkWeight is 400
+20260903 11:29:18.101 TRACE:: BaseSetupHandler.SetupCurrencyConversions():
+Account Type: Margin
+
+Symbol      Quantity    Conversion = Value in USDT
+USDT: ₮      100000.00 @       1.00 = ₮100000
+BTC: ₿           0.00 @   42399.99 = ₮0
+-------------------------------------------------
+CashBook Total Value:                ₮100000
+
+20260903 11:29:18.103 TRACE:: Total margin information: TotalMarginUsed: 0.00,
+MarginRemaining: 100000.00
+20260903 11:29:18.104 TRACE:: SetUp Backtesting: User: 0 ProjectId: -526400478
+AlgoId: 1303043662
+20260903 11:29:18.107 TRACE:: Dates: Start: 01/01/2024 End: 04/01/2024 Cash:
+¤100,000.00 MaximumRuntime: 100.00:00:00 MaxOrders: 2147483647
+20260903 11:29:18.114 TRACE:: BacktestingResultHandler(): Sample Period Set:
+33.12
+20260903 11:29:18.115 TRACE:: JOB HANDLERS:
+         DataFeed:
+QuantConnect.Lean.Engine.DataFeeds.FileSystemDataFeed
+         Setup:
+QuantConnect.Lean.Engine.Setup.ConsoleSetupHandler
+         RealTime:
+QuantConnect.Lean.Engine.RealTime.BacktestingRealTimeHandler
+         Results:
+QuantConnect.Lean.Engine.Results.BacktestingResultHandler
+         Transactions:
+QuantConnect.Lean.Engine.TransactionHandlers.BacktestingTransactionHandler
+         Object Store:         QuantConnect.Lean.Engine.Storage.LocalObjectStore
+         History Provider:
+QuantConnect.Lean.Engine.HistoricalData.HistoryProviderManager
+         Brokerage:
+QuantConnect.Brokerages.Backtesting.BacktestingBrokerage
+         Data Provider:
+QuantConnect.Lean.Engine.DataFeeds.DefaultDataProvider
+
+20260903 11:29:18.139 TRACE:: Event Name "Daily Sampling", scheduled to run.
+20260903 11:29:18.143 TRACE:: AlgorithmManager.Run(): Begin DataStream - Start:
+1/1/2024 12:00:00 AM Stop: 4/1/2024 11:59:59 PM Time: 1/1/2024 12:00:00 AM
+Warmup: False
+20260903 11:29:18.177 TRACE:: Debug: 2024-01-01 00:00:00 Launching analysis for
+1303043662 with LEAN Engine v2.5.0.0
+20260903 11:29:18.830 TRACE:: Debug: 1997-12-31 19:00:00 Changing account
+currency from USD to USDT...
+20260903 11:29:18.831 TRACE:: Log: 2024-01-01 00:00:00 MlSignalAlphaModel: Found
+models in directory: models
+20260903 11:29:19.889 TRACE:: Debug: 2024-01-05 08:31:00 Warning: Portfolio
+rebalance result ignored as it resulted in a single share trade recommendation
+which can generate high fees. To disable minimum order size checks please set
+Settings.MinimumOrderMarginPortfolioPercentage = 0.
+20260903 11:29:21.280 ERROR:: InterestRateProvider.FromCsvFile(): no interest
+rates were loaded, please make sure the file is present
+'/Lean/Data/alternative/interest-rate/usa/interest-rate.csv'
+20260903 11:30:18.164 TRACE:: Isolator.ExecuteWithTimeLimit(): Used: 25, Sample:
+34, App: 339, CurrentTimeStepElapsed: 00:00.000. CPU: 110%
+20260903 11:31:07.825 TRACE:: Synchronizer.GetEnumerator(): Exited thread.
+20260903 11:31:07.826 TRACE:: AlgorithmManager.Run(): Firing On End Of
+Algorithm...
+20260903 11:31:07.827 TRACE:: Engine.Run(): Exiting Algorithm Manager
+20260903 11:31:07.830 TRACE:: OrderRequestProcessingPool.Dispose(): completed
+20260903 11:31:07.831 TRACE:: StopSafely(): Waiting for 'Isolator Thread' thread
+to stop...
+20260903 11:31:07.832 TRACE:: FileSystemDataFeed.Exit(): Start. Setting
+cancellation token...
+20260903 11:31:07.833 TRACE:: FileSystemDataFeed.Exit(): Exit Finished.
+20260903 11:31:07.834 TRACE:: BacktestingResultHandler.Exit(): starting...
+20260903 11:31:07.834 TRACE:: BacktestingResultHandler.Exit(): Saving logs...
+20260903 11:31:07.835 TRACE:: Debug: 2024-04-02 00:00:00 Algorithm
+Id:(1303043662) completed in 109.71 seconds at 1k data points per second.
+Processing total of 132,427 data points.
+20260903 11:31:07.836 TRACE:: StopSafely(): Waiting for 'Result Thread' thread
+to stop...
+20260903 11:31:07.836 TRACE:: Debug: 2024-04-02 00:00:00 Your log was
+successfully created and can be retrieved from: /Results/1303043662-log.txt
+20260903 11:31:07.836 TRACE:: BacktestingResultHandler.Run(): Ending Thread...
+20260903 11:31:10.797 TRACE:: Extensions.IsDirectoryEmpty(): directory
+'/Lean/Data/equity/usa/map_files' not found or empty
+20260903 11:31:10.797 ERROR:: LocalDiskMapFileProvider.GetMapFileResolver(usa):
+The specified directory does not exist: /Lean/Data/equity/usa/map_files
+20260903 11:31:10.830 TRACE:: Extensions.IsDirectoryEmpty(): directory
+'/Lean/Data/equity/usa/factor_files' not found or empty
+20260903 11:31:13.049 TRACE::
+STATISTICS:: Total Orders 4676
+STATISTICS:: Average Win 0.05%
+STATISTICS:: Average Loss -0.03%
+STATISTICS:: Compounding Annual Return 541.260%
+STATISTICS:: Drawdown 4.000%
+STATISTICS:: Expectancy 0.627
+STATISTICS:: Start Equity 100000
+STATISTICS:: End Equity 159707.25
+STATISTICS:: Net Profit 59.707%
+STATISTICS:: Sharpe Ratio 16.741
+STATISTICS:: Sortino Ratio 39.239
+STATISTICS:: Probabilistic Sharpe Ratio 100.000%
+STATISTICS:: Loss Rate 41%
+STATISTICS:: Win Rate 59%
+STATISTICS:: Profit-Loss Ratio 1.78
+STATISTICS:: Alpha 0
+STATISTICS:: Beta 0
+STATISTICS:: Annual Standard Deviation 0.161
+STATISTICS:: Annual Variance 0.026
+STATISTICS:: Information Ratio 16.803
+STATISTICS:: Tracking Error 0.161
+STATISTICS:: Treynor Ratio 0
+STATISTICS:: Total Fees ₮0.00
+STATISTICS:: Estimated Strategy Capacity ₮440000.00
+STATISTICS:: Lowest Capacity Asset BTCUSDT 18N
+STATISTICS:: Portfolio Turnover 208.30%
+STATISTICS:: Drawdown Recovery 11
+STATISTICS:: OrderListHash 35bdbc80b40b2fd7134c69ae4fded087
+20260903 11:31:13.052 TRACE:: BacktestingResultHandler.SendAnalysisResult():
+Processed final packet
+20260903 11:31:13.056 TRACE:: Engine.Run(): Disconnecting from brokerage...
+20260903 11:31:13.057 TRACE:: Engine.Run(): Disposing of setup handler...
+20260903 11:31:13.058 TRACE:: Engine.Main(): Analysis Completed and Results
+Posted.
+20260903 11:31:13.059 TRACE:: DataMonitor.Exit(): start...
+20260903 11:31:13.060 TRACE:: StopSafely(): Waiting for '' thread to stop...
+20260903 11:31:13.069 TRACE:: DataMonitor.GenerateReport():
+DATA USAGE:: Total data requests 194
+DATA USAGE:: Succeeded data requests 92
+DATA USAGE:: Failed data requests 102
+DATA USAGE:: Failed data requests percentage 53%
+DATA USAGE:: Total universe data requests 0
+DATA USAGE:: Succeeded universe data requests 0
+DATA USAGE:: Failed universe data requests 0
+DATA USAGE:: Failed universe data requests percentage 0%
+20260903 11:31:13.088 TRACE:: DataMonitor.Exit(): end
+Engine.Main(): Analysis Complete.
+20260903 11:31:13.093 TRACE:: Engine.Main(): Packet removed from queue:
+1303043662
+20260903 11:31:13.094 TRACE:: LeanEngineSystemHandlers.Dispose(): start...
+20260903 11:31:13.098 TRACE:: LeanEngineSystemHandlers.Dispose(): Disposed of
+system handlers.
+20260903 11:31:13.100 TRACE:: LeanEngineAlgorithmHandlers.Dispose(): start...
+20260903 11:31:13.100 TRACE:: LocalObjectStore.Dispose(): start...
+20260903 11:31:13.100 TRACE:: LocalObjectStore.Dispose(): end
+20260903 11:31:13.101 TRACE:: LeanEngineAlgorithmHandlers.Dispose(): Disposed of
+algorithm handlers.
+20260903 11:31:13.102 TRACE:: StopSafely(): Waiting for 'CpuPerformance' thread
+to stop...
+20260903 11:31:13.104 TRACE:: Program.Main(): Exiting Lean...
+Successfully ran 'Algorithm' in the 'backtesting' environment and stored the
+output in 'Algorithm/backtests/2026-09-03_11-29-00'
