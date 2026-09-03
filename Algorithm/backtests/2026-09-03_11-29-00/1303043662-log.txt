@@ -1,0 +1,5 @@
+2024-01-01 00:00:00 Launching analysis for 1303043662 with LEAN Engine v2.5.0.0
+1997-12-31 19:00:00 Changing account currency from USD to USDT...
+2024-01-01 00:00:00 MlSignalAlphaModel: Found models in directory: models
+2024-01-05 08:31:00 Warning: Portfolio rebalance result ignored as it resulted in a single share trade recommendation which can generate high fees. To disable minimum order size checks please set Settings.MinimumOrderMarginPortfolioPercentage = 0.
+2024-04-02 00:00:00 Algorithm Id:(1303043662) completed in 109.71 seconds at 1k data points per second. Processing total of 132,427 data points.

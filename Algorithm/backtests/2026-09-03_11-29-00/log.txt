@@ -1,0 +1,115 @@
+2026-09-03T11:29:16.2055484Z TRACE:: Engine.Main(): LEAN ALGORITHMIC TRADING ENGINE v2.5.0.0 Mode: DEBUG (64bit) Host: devbox
+2026-09-03T11:29:16.2153397Z TRACE:: Engine.Main(): Started 11:29 AM
+2026-09-03T11:29:16.2543781Z TRACE:: JobQueue.NextJob(): Selected Algorithm.dll
+2026-09-03T11:29:16.3656552Z TRACE:: AlgorithmManager.CreateTokenBucket(): Initializing LeakyBucket: Capacity: 120 RefillAmount: 18 TimeInterval: 1440
+2026-09-03T11:29:16.3781235Z TRACE:: Engine.Run(): Resource limits '0' CPUs. 2147483647 MB RAM.
+2026-09-03T11:29:16.3790653Z TRACE:: TextSubscriptionDataSourceReader.SetCacheSize(): Setting cache size to 71582788 items
+2026-09-03T11:29:17.3430449Z TRACE:: Loader.TryCreateILAlgorithm(): Loading only the algorithm assembly
+2026-09-03T11:29:17.7044262Z TRACE:: Loader.TryCreateILAlgorithm(): Loaded Main
+2026-09-03T11:29:17.7112057Z TRACE:: LocalObjectStore.Initialize(): Storage Root: /Storage. StorageFileCount 9999999. StorageLimit 10240MB. StoragePermissions Read=True Write=True Delete=True
+2026-09-03T11:29:17.7427203Z TRACE:: HistoryProviderManager.Initialize(): history providers [SubscriptionDataReaderHistoryProvider]
+2026-09-03T11:29:17.7487429Z TRACE:: BaseSetupHandler.Setup(LocalPlatform): UID: 0, PID: -526400478, Version: 2.5.0.0, Source: WebIDE
+2026-09-03T11:29:17.7609611Z TRACE:: SecurityPortfolioManager.SetAccountCurrency(): setting account currency to USDT
+2026-09-03T11:29:17.8901160Z TRACE:: WeightedWorkScheduler(): will use 4 workers and MaxWorkWeight is 400
+2026-09-03T11:29:18.1017008Z TRACE:: BaseSetupHandler.SetupCurrencyConversions():
+Account Type: Margin
+
+Symbol      Quantity    Conversion = Value in USDT
+USDT: ₮      100000.00 @       1.00 = ₮100000
+BTC: ₿           0.00 @   42399.99 = ₮0
+-------------------------------------------------
+CashBook Total Value:                ₮100000
+
+2026-09-03T11:29:18.1039952Z TRACE:: Total margin information: TotalMarginUsed: 0.00, MarginRemaining: 100000.00
+2026-09-03T11:29:18.1045083Z TRACE:: SetUp Backtesting: User: 0 ProjectId: -526400478 AlgoId: 1303043662
+2026-09-03T11:29:18.1078581Z TRACE:: Dates: Start: 01/01/2024 End: 04/01/2024 Cash: ¤100,000.00 MaximumRuntime: 100.00:00:00 MaxOrders: 2147483647
+2026-09-03T11:29:18.1144998Z TRACE:: BacktestingResultHandler(): Sample Period Set: 33.12
+2026-09-03T11:29:18.1151094Z TRACE:: JOB HANDLERS:
+         DataFeed:             QuantConnect.Lean.Engine.DataFeeds.FileSystemDataFeed
+         Setup:                QuantConnect.Lean.Engine.Setup.ConsoleSetupHandler
+         RealTime:             QuantConnect.Lean.Engine.RealTime.BacktestingRealTimeHandler
+         Results:              QuantConnect.Lean.Engine.Results.BacktestingResultHandler
+         Transactions:         QuantConnect.Lean.Engine.TransactionHandlers.BacktestingTransactionHandler
+         Object Store:         QuantConnect.Lean.Engine.Storage.LocalObjectStore
+         History Provider:     QuantConnect.Lean.Engine.HistoricalData.HistoryProviderManager
+         Brokerage:            QuantConnect.Brokerages.Backtesting.BacktestingBrokerage
+         Data Provider:        QuantConnect.Lean.Engine.DataFeeds.DefaultDataProvider
+
+2026-09-03T11:29:18.1394688Z TRACE:: Event Name "Daily Sampling", scheduled to run.
+2026-09-03T11:29:18.1432768Z TRACE:: AlgorithmManager.Run(): Begin DataStream - Start: 1/1/2024 12:00:00 AM Stop: 4/1/2024 11:59:59 PM Time: 1/1/2024 12:00:00 AM Warmup: False
+2026-09-03T11:29:18.1775546Z TRACE:: Debug: 2024-01-01 00:00:00 Launching analysis for 1303043662 with LEAN Engine v2.5.0.0
+2026-09-03T11:29:18.8307833Z TRACE:: Debug: 1997-12-31 19:00:00 Changing account currency from USD to USDT...
+2026-09-03T11:29:18.8311619Z TRACE:: Log: 2024-01-01 00:00:00 MlSignalAlphaModel: Found models in directory: models
+2026-09-03T11:29:19.8900055Z TRACE:: Debug: 2024-01-05 08:31:00 Warning: Portfolio rebalance result ignored as it resulted in a single share trade recommendation which can generate high fees. To disable minimum order size checks please set Settings.MinimumOrderMarginPortfolioPercentage = 0.
+2026-09-03T11:29:21.2802623Z ERROR:: InterestRateProvider.FromCsvFile(): no interest rates were loaded, please make sure the file is present '/Lean/Data/alternative/interest-rate/usa/interest-rate.csv'
+2026-09-03T11:30:18.1647414Z TRACE:: Isolator.ExecuteWithTimeLimit(): Used: 25, Sample: 34, App: 339, CurrentTimeStepElapsed: 00:00.000. CPU: 110%
+2026-09-03T11:31:07.8254966Z TRACE:: Synchronizer.GetEnumerator(): Exited thread.
+2026-09-03T11:31:07.8265947Z TRACE:: AlgorithmManager.Run(): Firing On End Of Algorithm...
+2026-09-03T11:31:07.8273447Z TRACE:: Engine.Run(): Exiting Algorithm Manager
+2026-09-03T11:31:07.8302419Z TRACE:: OrderRequestProcessingPool.Dispose(): completed
+2026-09-03T11:31:07.8315399Z TRACE:: StopSafely(): Waiting for 'Isolator Thread' thread to stop...
+2026-09-03T11:31:07.8325238Z TRACE:: FileSystemDataFeed.Exit(): Start. Setting cancellation token...
+2026-09-03T11:31:07.8339906Z TRACE:: FileSystemDataFeed.Exit(): Exit Finished.
+2026-09-03T11:31:07.8342968Z TRACE:: BacktestingResultHandler.Exit(): starting...
+2026-09-03T11:31:07.8344129Z TRACE:: BacktestingResultHandler.Exit(): Saving logs...
+2026-09-03T11:31:07.8360280Z TRACE:: Debug: 2024-04-02 00:00:00 Algorithm Id:(1303043662) completed in 109.71 seconds at 1k data points per second. Processing total of 132,427 data points.
+2026-09-03T11:31:07.8361148Z TRACE:: StopSafely(): Waiting for 'Result Thread' thread to stop...
+2026-09-03T11:31:07.8361445Z TRACE:: Debug: 2024-04-02 00:00:00 Your log was successfully created and can be retrieved from: /Results/1303043662-log.txt
+2026-09-03T11:31:07.8361615Z TRACE:: BacktestingResultHandler.Run(): Ending Thread...
+2026-09-03T11:31:10.7972706Z TRACE:: Extensions.IsDirectoryEmpty(): directory '/Lean/Data/equity/usa/map_files' not found or empty
+2026-09-03T11:31:10.7974636Z ERROR:: LocalDiskMapFileProvider.GetMapFileResolver(usa): The specified directory does not exist: /Lean/Data/equity/usa/map_files
+2026-09-03T11:31:10.8309570Z TRACE:: Extensions.IsDirectoryEmpty(): directory '/Lean/Data/equity/usa/factor_files' not found or empty
+2026-09-03T11:31:13.0520082Z TRACE::
+STATISTICS:: Total Orders 4676
+STATISTICS:: Average Win 0.05%
+STATISTICS:: Average Loss -0.03%
+STATISTICS:: Compounding Annual Return 541.260%
+STATISTICS:: Drawdown 4.000%
+STATISTICS:: Expectancy 0.627
+STATISTICS:: Start Equity 100000
+STATISTICS:: End Equity 159707.25
+STATISTICS:: Net Profit 59.707%
+STATISTICS:: Sharpe Ratio 16.741
+STATISTICS:: Sortino Ratio 39.239
+STATISTICS:: Probabilistic Sharpe Ratio 100.000%
+STATISTICS:: Loss Rate 41%
+STATISTICS:: Win Rate 59%
+STATISTICS:: Profit-Loss Ratio 1.78
+STATISTICS:: Alpha 0
+STATISTICS:: Beta 0
+STATISTICS:: Annual Standard Deviation 0.161
+STATISTICS:: Annual Variance 0.026
+STATISTICS:: Information Ratio 16.803
+STATISTICS:: Tracking Error 0.161
+STATISTICS:: Treynor Ratio 0
+STATISTICS:: Total Fees ₮0.00
+STATISTICS:: Estimated Strategy Capacity ₮440000.00
+STATISTICS:: Lowest Capacity Asset BTCUSDT 18N
+STATISTICS:: Portfolio Turnover 208.30%
+STATISTICS:: Drawdown Recovery 11
+STATISTICS:: OrderListHash 35bdbc80b40b2fd7134c69ae4fded087
+2026-09-03T11:31:13.0525631Z TRACE:: BacktestingResultHandler.SendAnalysisResult(): Processed final packet
+2026-09-03T11:31:13.0567421Z TRACE:: Engine.Run(): Disconnecting from brokerage...
+2026-09-03T11:31:13.0582641Z TRACE:: Engine.Run(): Disposing of setup handler...
+2026-09-03T11:31:13.0588119Z TRACE:: Engine.Main(): Analysis Completed and Results Posted.
+2026-09-03T11:31:13.0601507Z TRACE:: DataMonitor.Exit(): start...
+2026-09-03T11:31:13.0607605Z TRACE:: StopSafely(): Waiting for '' thread to stop...
+2026-09-03T11:31:13.0696207Z TRACE:: DataMonitor.GenerateReport():
+DATA USAGE:: Total data requests 194
+DATA USAGE:: Succeeded data requests 92
+DATA USAGE:: Failed data requests 102
+DATA USAGE:: Failed data requests percentage 53%
+DATA USAGE:: Total universe data requests 0
+DATA USAGE:: Succeeded universe data requests 0
+DATA USAGE:: Failed universe data requests 0
+DATA USAGE:: Failed universe data requests percentage 0%
+2026-09-03T11:31:13.0901405Z TRACE:: DataMonitor.Exit(): end
+2026-09-03T11:31:13.0935918Z TRACE:: Engine.Main(): Packet removed from queue: 1303043662
+2026-09-03T11:31:13.0946786Z TRACE:: LeanEngineSystemHandlers.Dispose(): start...
+2026-09-03T11:31:13.0991390Z TRACE:: LeanEngineSystemHandlers.Dispose(): Disposed of system handlers.
+2026-09-03T11:31:13.1002960Z TRACE:: LeanEngineAlgorithmHandlers.Dispose(): start...
+2026-09-03T11:31:13.1007876Z TRACE:: LocalObjectStore.Dispose(): start...
+2026-09-03T11:31:13.1011436Z TRACE:: LocalObjectStore.Dispose(): end
+2026-09-03T11:31:13.1021154Z TRACE:: LeanEngineAlgorithmHandlers.Dispose(): Disposed of algorithm handlers.
+2026-09-03T11:31:13.1029071Z TRACE:: StopSafely(): Waiting for 'CpuPerformance' thread to stop...
+2026-09-03T11:31:13.1045724Z TRACE:: Program.Main(): Exiting Lean...

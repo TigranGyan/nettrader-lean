@@ -14,6 +14,7 @@ obj/
 !/models/.gitkeep
 !/models/ModelLong.zip
 !/models/ModelShort.zip
+/Algorithm/models/
 
 ## LEAN CLI local config (contains local paths, not secrets by default, but keep out anyway)
 .idea/

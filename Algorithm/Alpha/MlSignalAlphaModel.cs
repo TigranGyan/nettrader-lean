@@ -84,21 +84,47 @@ public sealed class MlSignalAlphaModel : AlphaModel
         algorithm.SubscriptionManager.AddConsolidator(symbol, consolidator);
     }
 
-    private void EnsureModelsLoaded()
+    private bool _modelLoadedLogged;
+
+    private void EnsureModelsLoaded(QCAlgorithm algorithm)
     {
         if (_longEngine != null && _shortEngine != null) return;
 
         var mlContext = new MLContext();
-        var longPath = Path.Combine(_modelsDirectory, "ModelLong.zip");
-        var shortPath = Path.Combine(_modelsDirectory, "ModelShort.zip");
-
-        // Fail closed (no exception bubbled into the algorithm loop): if the model files aren't where
-        // expected, this model emits nothing rather than crashing the whole algorithm — matches
-        // MLSignalService.EnrichWithSignalsAsync's own `if (_predictionPool == null) return;` guard.
-        if (!File.Exists(longPath) || !File.Exists(shortPath))
+        var candidates = new[]
         {
+            _modelsDirectory,
+            Path.Combine(Directory.GetCurrentDirectory(), _modelsDirectory),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _modelsDirectory),
+            Path.Combine("/Lean/Launcher/bin/Debug", _modelsDirectory),
+            Path.Combine("/Lean/Launcher/bin/Debug/Algorithm", _modelsDirectory),
+            "models",
+            "../models",
+            "/models"
+        };
+
+        string? foundDir = candidates.FirstOrDefault(d =>
+            File.Exists(Path.Combine(d, "ModelLong.zip")) &&
+            File.Exists(Path.Combine(d, "ModelShort.zip")));
+
+        if (foundDir is null)
+        {
+            if (!_modelLoadedLogged)
+            {
+                algorithm.Log($"MlSignalAlphaModel: Models NOT found. Searched in: {string.Join("; ", candidates)}");
+                _modelLoadedLogged = true;
+            }
             return;
         }
+
+        if (!_modelLoadedLogged)
+        {
+            algorithm.Log($"MlSignalAlphaModel: Found models in directory: {foundDir}");
+            _modelLoadedLogged = true;
+        }
+
+        var longPath = Path.Combine(foundDir, "ModelLong.zip");
+        var shortPath = Path.Combine(foundDir, "ModelShort.zip");
 
         var longModel = mlContext.Model.Load(longPath, out _);
         var shortModel = mlContext.Model.Load(shortPath, out _);
@@ -108,7 +134,7 @@ public sealed class MlSignalAlphaModel : AlphaModel
 
     public override IEnumerable<Insight> Update(QCAlgorithm algorithm, Slice data)
     {
-        EnsureModelsLoaded();
+        EnsureModelsLoaded(algorithm);
         if (_longEngine is null || _shortEngine is null)
         {
             yield break; // models not found — fail closed, see EnsureModelsLoaded.
