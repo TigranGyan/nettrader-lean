@@ -81,20 +81,23 @@ jobs:
           print(f'Done preparing data! Downloaded: {downloaded}, Failed: {failed}')
           "
 
-      # TODO(unverified — flagging for Jules, not guessing): this run failed on 2026-09-04
-      # (workflow run 33906160955) with "Error: This command requires a Lean configuration
-      # file, run `lean init` in an empty directory to create one, or specify the file to use
-      # with --lean-config" — `lean backtest` was never actually executed. The step below used
-      # to swallow that failure with `|| true`, so the job reported green while silently
-      # falling through to the NEXT step, which just found the stale results directory from the
-      # earlier single-symbol smoke test (Algorithm/backtests/2026-09-03_11-29-00) and uploaded
-      # THAT as if it were this run's output. The Phase 0 gate (7 symbols, 1 year, Kelly sizing)
-      # has therefore still never actually been run — this fixes the false-positive masking
-      # (failure is loud now, and copying stale results is blocked below), but does NOT fix the
-      # missing-config error itself: that needs a `lean init` (or equivalent) step added here,
-      # which the author of this workflow already did successfully in a local run (see PR #3) —
-      # cannot be verified in the environment that wrote this fix (its egress proxy blocks
-      # cdn.quantconnect.com, which the `lean` CLI needs just to start).
+      # Run 33906160955 (2026-09-04) failed here with "Error: This command requires a Lean
+      # configuration file, run `lean init` in an empty directory to create one..." — lean.json
+      # was never created. Best-effort fix below: `lean init` in the (non-empty) repo root,
+      # auto-confirming its "not an empty directory" prompt via `yes` and bounded by `timeout` in
+      # case it hangs on an unanticipated prompt or a large sample-data download.
+      #
+      # UNVERIFIED end-to-end: this environment's egress proxy blocks cdn.quantconnect.com, which
+      # `lean` needs just to start (confirmed: even `lean --version` fails here with a ProxyError
+      # against that host) — there was no way to test this locally before pushing. If this step
+      # still fails, read its actual output in the Actions log (this workflow no longer masks
+      # failures) and fix from there rather than guessing again blind.
+      - name: Initialize LEAN CLI workspace
+        run: |
+          timeout 180 bash -c 'yes | lean init' || true
+          echo "--- lean.json after init attempt: ---"
+          cat lean.json 2>&1 || echo "(no lean.json produced)"
+
       - name: Run LEAN Backtest
         run: |
           mkdir -p backtests/phase0-full
