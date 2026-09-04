@@ -1,0 +1,112 @@
+name: Phase 0 Full Backtest
+
+on:
+  workflow_dispatch:
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install LEAN CLI
+        run: |
+          pip install lean
+
+      - name: Download & Prepare Historical Data (7 symbols, 2023-01-01 to 2024-01-01)
+        run: |
+          python3 -c "
+          import urllib.request, zipfile, io, os, datetime
+
+          symbols = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'BNBUSDT', 'AVAXUSDT']
+          start_date = datetime.date(2023, 1, 1)
+          end_date = datetime.date(2024, 1, 1)
+
+          base_dir = 'data/crypto/binance/minute'
+          delta = datetime.timedelta(days=1)
+
+          def convert_binance_csv(binance_zip_bytes):
+              output_lines = []
+              with zipfile.ZipFile(io.BytesIO(binance_zip_bytes)) as z:
+                  csv_file = z.namelist()[0]
+                  with z.open(csv_file) as f:
+                      for line in f:
+                          parts = line.decode().strip().split(',')
+                          if len(parts) < 6:
+                              continue
+                          try:
+                              open_time = int(parts[0])
+                              dt = datetime.datetime.fromtimestamp(open_time / 1000.0, tz=datetime.timezone.utc)
+                              ms_from_midnight = (dt.hour * 3600 + dt.minute * 60 + dt.second) * 1000
+                              o, h, l, c, v = parts[1], parts[2], parts[3], parts[4], parts[5]
+                              output_lines.append(f'{ms_from_midnight},{o},{h},{l},{c},{v}\n')
+                          except ValueError:
+                              continue
+              return ''.join(output_lines)
+
+          curr = start_date
+          downloaded = 0
+          failed = 0
+
+          while curr <= end_date:
+              date_str = curr.strftime('%Y-%m-%d')
+              date_compact = curr.strftime('%Y%m%d')
+              for sym in symbols:
+                  sym_dir = os.path.join(base_dir, sym.lower())
+                  os.makedirs(sym_dir, exist_ok=True)
+                  target_zip = os.path.join(sym_dir, f'{date_compact}_trade.zip')
+                  if os.path.exists(target_zip) and os.path.getsize(target_zip) > 1000:
+                      continue
+
+                  url = f'https://data.binance.vision/data/spot/daily/klines/{sym}/1m/{sym}-1m-{date_str}.zip'
+                  try:
+                      req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                      with urllib.request.urlopen(req) as resp:
+                          data = resp.read()
+                      csv_content = convert_binance_csv(data)
+
+                      with zipfile.ZipFile(target_zip, 'w', compression=zipfile.ZIP_DEFLATED) as zout:
+                          zout.writestr(f'{date_compact}_trade.csv', csv_content)
+                      downloaded += 1
+                  except Exception as e:
+                      failed += 1
+              curr += delta
+
+          print(f'Done preparing data! Downloaded: {downloaded}, Failed: {failed}')
+          "
+
+      - name: Run LEAN Backtest
+        run: |
+          mkdir -p backtests/phase0-full
+          lean backtest Algorithm > backtests/phase0-full/backtest-output.log 2>&1 || true
+          cat backtests/phase0-full/backtest-output.log
+
+      - name: Locate and copy lightweight backtest results
+        run: |
+          LATEST_DIR=$(ls -td Algorithm/backtests/* | head -n 1)
+          echo "Latest results dir: $LATEST_DIR"
+
+          # Find summary.json and log.txt
+          SUMMARY_FILE=$(find "$LATEST_DIR" -name "*-summary.json" | head -n 1)
+          LOG_FILE=$(find "$LATEST_DIR" -name "*-log.txt" | head -n 1)
+
+          if [ -n "$SUMMARY_FILE" ]; then
+            cp "$SUMMARY_FILE" backtests/phase0-full/summary.json
+          fi
+          if [ -n "$LOG_FILE" ]; then
+            cp "$LOG_FILE" backtests/phase0-full/log.txt
+          fi
+
+          ls -la backtests/phase0-full/
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase0-backtest-results
+          path: backtests/phase0-full/

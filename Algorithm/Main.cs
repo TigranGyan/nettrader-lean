@@ -16,20 +16,23 @@ namespace NetTrader.Lean.Algorithm;
 /// </summary>
 public class Main : QCAlgorithm
 {
-    private const bool UseKellySizing = false;
+    private const bool UseKellySizing = true;
 
     public override void Initialize()
     {
         var options = new TradingOptions();
 
         SetAccountCurrency("USDT");
-        SetStartDate(2024, 1, 1);
-        SetEndDate(2024, 4, 1);
+        SetStartDate(2023, 1, 1);
+        SetEndDate(2024, 1, 1);
         SetCash(100000);
 
         SetBenchmark(x => 0);
 
-        AddCrypto("BTCUSDT", Resolution.Minute, Market.Binance);
+        foreach (var symbol in SymbolConfig.AllowedSymbols)
+        {
+            AddCrypto(symbol, Resolution.Minute, Market.Binance);
+        }
 
         var insightPeriod = TimeSpan.FromHours(4);
         SetAlpha(new MlSignalAlphaModel(options, insightPeriod));
