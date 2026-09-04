@@ -81,24 +81,55 @@ jobs:
           print(f'Done preparing data! Downloaded: {downloaded}, Failed: {failed}')
           "
 
+      # TODO(unverified — flagging for Jules, not guessing): this run failed on 2026-09-04
+      # (workflow run 33906160955) with "Error: This command requires a Lean configuration
+      # file, run `lean init` in an empty directory to create one, or specify the file to use
+      # with --lean-config" — `lean backtest` was never actually executed. The step below used
+      # to swallow that failure with `|| true`, so the job reported green while silently
+      # falling through to the NEXT step, which just found the stale results directory from the
+      # earlier single-symbol smoke test (Algorithm/backtests/2026-09-03_11-29-00) and uploaded
+      # THAT as if it were this run's output. The Phase 0 gate (7 symbols, 1 year, Kelly sizing)
+      # has therefore still never actually been run — this fixes the false-positive masking
+      # (failure is loud now, and copying stale results is blocked below), but does NOT fix the
+      # missing-config error itself: that needs a `lean init` (or equivalent) step added here,
+      # which the author of this workflow already did successfully in a local run (see PR #3) —
+      # cannot be verified in the environment that wrote this fix (its egress proxy blocks
+      # cdn.quantconnect.com, which the `lean` CLI needs just to start).
       - name: Run LEAN Backtest
         run: |
           mkdir -p backtests/phase0-full
-          lean backtest Algorithm > backtests/phase0-full/backtest-output.log 2>&1 || true
+          lean backtest Algorithm > backtests/phase0-full/backtest-output.log 2>&1
           cat backtests/phase0-full/backtest-output.log
 
       - name: Locate and copy lightweight backtest results
         run: |
-          LATEST_DIR=$(ls -td Algorithm/backtests/* | head -n 1)
-          echo "Latest results dir: $LATEST_DIR"
+          # Only accept a results directory that did not exist before this run — otherwise a
+          # failed/no-op backtest silently re-uploads stale results from a prior run as if they
+          # were fresh (this is exactly what happened in run 33906160955).
+          LATEST_DIR=$(ls -td Algorithm/backtests/* 2>/dev/null | head -n 1)
+          if [ -z "$LATEST_DIR" ]; then
+            echo "::error::No Algorithm/backtests/* directory found — lean backtest did not produce output."
+            exit 1
+          fi
+          DIR_MTIME=$(date -d "$(stat -c %y "$LATEST_DIR")" +%s 2>/dev/null || stat -f %m "$LATEST_DIR")
+          NOW=$(date +%s)
+          AGE_SECONDS=$((NOW - DIR_MTIME))
+          if [ "$AGE_SECONDS" -gt 600 ]; then
+            echo "::error::Latest results dir $LATEST_DIR is $AGE_SECONDS seconds old (>600s) — this looks like a STALE directory from a previous run, not fresh output from this backtest. Refusing to upload it as evidence."
+            exit 1
+          fi
+          echo "Latest results dir: $LATEST_DIR (${AGE_SECONDS}s old — fresh)"
 
           # Find summary.json and log.txt
           SUMMARY_FILE=$(find "$LATEST_DIR" -name "*-summary.json" | head -n 1)
           LOG_FILE=$(find "$LATEST_DIR" -name "*-log.txt" | head -n 1)
 
-          if [ -n "$SUMMARY_FILE" ]; then
-            cp "$SUMMARY_FILE" backtests/phase0-full/summary.json
+          if [ -z "$SUMMARY_FILE" ]; then
+            echo "::error::No *-summary.json found in $LATEST_DIR"
+            exit 1
           fi
+
+          cp "$SUMMARY_FILE" backtests/phase0-full/summary.json
           if [ -n "$LOG_FILE" ]; then
             cp "$LOG_FILE" backtests/phase0-full/log.txt
           fi
