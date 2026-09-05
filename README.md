@@ -36,6 +36,18 @@ Insight'а `RewardRiskRatio`/SL/TP реально совпадают с логи
 (лёгкие, достаточные как доказательство), сырые `*.json` с построчными Insight'ами — не коммитить (либо
 хранить вне git, либо оставлять в `.gitignore` после того как разово проверены).
 
+## Ревизия: прогон #6 полного гейта Фазы 0 (run `33962105368`) — CI зелёный, но 0 сделок
+
+`phase0-backtest.yml` впервые реально доехал до конца (`lean backtest` отработал, шаг проверки свежести
+результатов прошёл), но `STATISTICS:: Total Orders 0` на всех 7 символах за год. Причина — прямо в логе:
+`MlSignalAlphaModel: Models NOT found. Searched in: ...` — путь, куда `.csproj` реально копирует
+`ModelLong.zip`/`ModelShort.zip` в Docker-раскладке GitHub Actions (`/Compile/bin/models`, по строке
+build-лога `NetTrader.Lean.Algorithm -> /Compile/bin/Algorithm.dll`), отсутствовал в списке кандидатных
+путей поиска моделей. Это fail-closed поведение сработало как задумано (ни одной сделки без модели), не
+скрытая поломка. **Исправлено** (не проверено end-to-end — тот же прокси в песочнице блокирует
+`cdn.quantconnect.com`): добавлен `/Compile/bin/models` как ещё один кандидат в
+`MlSignalAlphaModel.EnsureModelsLoaded`. Подробности и точные цитаты лога — `docs/PLAN.md`.
+
 ## Обновления от Jules (PR #1, коммит `5130739`)
 
 Проверено построчным диффом против предыдущего состояния — изменения корректны:

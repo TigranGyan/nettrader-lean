@@ -98,6 +98,14 @@ public sealed class MlSignalAlphaModel : AlphaModel
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _modelsDirectory),
             Path.Combine("/Lean/Launcher/bin/Debug", _modelsDirectory),
             Path.Combine("/Lean/Launcher/bin/Debug/Algorithm", _modelsDirectory),
+            // Run 33962105368 (Docker/GitHub Actions execution of phase0-backtest.yml): build log shows
+            // "NetTrader.Lean.Algorithm -> /Compile/bin/Algorithm.dll", so per the csproj's
+            // CopyToOutputDirectory rule the models actually land at /Compile/bin/models — but
+            // AppDomain.CurrentDomain.BaseDirectory in that log resolved to the Lean Launcher's own
+            // directory (identical to the /Lean/Launcher/bin/Debug candidate above), not the algorithm
+            // assembly's directory, so this path was never covered and the model load failed closed for
+            // the entire run (Total Orders 0 across all 7 symbols/1 year).
+            Path.Combine("/Compile/bin", _modelsDirectory),
             "models",
             "../models",
             "/models"
