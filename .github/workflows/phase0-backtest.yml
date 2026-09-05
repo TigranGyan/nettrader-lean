@@ -81,20 +81,25 @@ jobs:
           print(f'Done preparing data! Downloaded: {downloaded}, Failed: {failed}')
           "
 
-      # Run 33906160955 (2026-09-04) failed here with "Error: This command requires a Lean
-      # configuration file, run `lean init` in an empty directory to create one..." — lean.json
-      # was never created. Best-effort fix below: `lean init` in the (non-empty) repo root,
-      # auto-confirming its "not an empty directory" prompt via `yes` and bounded by `timeout` in
-      # case it hangs on an unanticipated prompt or a large sample-data download.
+      # Run 33909191376 (2026-09-04) proved `lean init` needs real QuantConnect account
+      # credentials (User Id + API Token) — it's not just a "not an empty directory" confirm, it
+      # actually authenticates against the QC API. QC_USER_ID/QC_API_TOKEN are repo secrets (from
+      # quantconnect.com → account/profile → Security → "Request Token Information").
       #
       # UNVERIFIED end-to-end: this environment's egress proxy blocks cdn.quantconnect.com, which
-      # `lean` needs just to start (confirmed: even `lean --version` fails here with a ProxyError
-      # against that host) — there was no way to test this locally before pushing. If this step
-      # still fails, read its actual output in the Actions log (this workflow no longer masks
+      # `lean` needs just to start — there was no way to test this locally before pushing. If this
+      # step still fails, read its actual output in the Actions log (this workflow no longer masks
       # failures) and fix from there rather than guessing again blind.
+      - name: Log in to QuantConnect
+        env:
+          QC_USER_ID: ${{ secrets.QC_USER_ID }}
+          QC_API_TOKEN: ${{ secrets.QC_API_TOKEN }}
+        run: |
+          lean login --user-id "$QC_USER_ID" --api-token "$QC_API_TOKEN"
+
       - name: Initialize LEAN CLI workspace
         run: |
-          timeout 180 bash -c 'yes | lean init' || true
+          yes | timeout 180 lean init
           echo "--- lean.json after init attempt: ---"
           cat lean.json 2>&1 || echo "(no lean.json produced)"
 
