@@ -19,6 +19,32 @@ jobs:
         run: |
           pip install lean
 
+      # Run 33909191376 (2026-09-04) proved `lean init` needs real QuantConnect account
+      # credentials (User Id + API Token) — it's not just a "not an empty directory" confirm, it
+      # actually authenticates against the QC API. QC_USER_ID/QC_API_TOKEN are repo secrets (from
+      # quantconnect.com → account/profile → Security → "Request Token Information").
+      - name: Log in to QuantConnect
+        env:
+          QC_USER_ID: ${{ secrets.QC_USER_ID }}
+          QC_API_TOKEN: ${{ secrets.QC_API_TOKEN }}
+        run: |
+          lean login --user-id "$QC_USER_ID" --api-token "$QC_API_TOKEN"
+
+      # Must run BEFORE the data-download step below: run 33959341937 proved `lean init` refuses
+      # to run at all if a `data/` directory already exists ("Error: data already exists, please
+      # run this command in an empty directory") — it wants to create its own from scratch. Doing
+      # this first, then downloading our own historical data into data/crypto/binance/minute/
+      # afterward, avoids that conflict entirely instead of trying to reproduce lean.json by hand.
+      #
+      # UNVERIFIED end-to-end beyond this: this environment's egress proxy blocks
+      # cdn.quantconnect.com, so this reordering could not be tested locally before pushing — read
+      # the actual Actions log if this still fails rather than guessing further blind.
+      - name: Initialize LEAN CLI workspace
+        run: |
+          yes | timeout 180 lean init
+          echo "--- lean.json after init attempt: ---"
+          cat lean.json 2>&1 || echo "(no lean.json produced)"
+
       - name: Download & Prepare Historical Data (7 symbols, 2023-01-01 to 2024-01-01)
         run: |
           python3 -c "
@@ -80,28 +106,6 @@ jobs:
 
           print(f'Done preparing data! Downloaded: {downloaded}, Failed: {failed}')
           "
-
-      # Run 33909191376 (2026-09-04) proved `lean init` needs real QuantConnect account
-      # credentials (User Id + API Token) — it's not just a "not an empty directory" confirm, it
-      # actually authenticates against the QC API. QC_USER_ID/QC_API_TOKEN are repo secrets (from
-      # quantconnect.com → account/profile → Security → "Request Token Information").
-      #
-      # UNVERIFIED end-to-end: this environment's egress proxy blocks cdn.quantconnect.com, which
-      # `lean` needs just to start — there was no way to test this locally before pushing. If this
-      # step still fails, read its actual output in the Actions log (this workflow no longer masks
-      # failures) and fix from there rather than guessing again blind.
-      - name: Log in to QuantConnect
-        env:
-          QC_USER_ID: ${{ secrets.QC_USER_ID }}
-          QC_API_TOKEN: ${{ secrets.QC_API_TOKEN }}
-        run: |
-          lean login --user-id "$QC_USER_ID" --api-token "$QC_API_TOKEN"
-
-      - name: Initialize LEAN CLI workspace
-        run: |
-          yes | timeout 180 lean init
-          echo "--- lean.json after init attempt: ---"
-          cat lean.json 2>&1 || echo "(no lean.json produced)"
 
       - name: Run LEAN Backtest
         run: |
