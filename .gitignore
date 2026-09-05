@@ -14,11 +14,12 @@ obj/
 ## ML model artifacts — ModelLong.zip/ModelShort.zip ARE committed (~800KB each, ported from
 ## nettrader/NetTrader.Worker/mlmodel/), small enough not to need Git LFS. Only ignore anything else
 ## that might land here (retraining scratch output, larger future models).
-/models/*
-!/models/.gitkeep
-!/models/ModelLong.zip
-!/models/ModelShort.zip
-/Algorithm/models/
+## Moved from repo-root /models/ into /Algorithm/models/ (run #7 finding, docs/PLAN.md): Lean CLI's
+## Docker build for `lean backtest Algorithm` mounts only the Algorithm/ directory as /LeanCLI, so a
+## models/ folder one level above it was invisible to the build and never got copied to output.
+/Algorithm/models/*
+!/Algorithm/models/ModelLong.zip
+!/Algorithm/models/ModelShort.zip
 
 ## Lean CLI backtest output — the FIRST run (Algorithm/backtests/2026-09-03_11-29-00/) is committed on
 ## purpose as evidence the ML signal genuinely fires (see README.md, "Phase 0 смоук-тест"). Every run

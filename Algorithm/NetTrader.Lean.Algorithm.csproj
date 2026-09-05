@@ -18,6 +18,11 @@
         <PackageReference Include="Skender.Stock.Indicators" Version="2.7.1"/>
     </ItemGroup>
     <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)..\models\**\*.*" Link="models\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <!-- models/ now lives inside Algorithm/ itself (moved from the repo root — see docs/PLAN.md,
+             "прогон #7": Lean CLI's Docker build mounts only the project directory as /LeanCLI, so a
+             "..\models" glob pointing above it matched zero files and copied nothing, silently). Using
+             Update (not Include) because the SDK's default implicit globs already pick these files up as
+             None items; Include would duplicate them and fail the build with NETSDK1022. -->
+        <None Update="models\**\*.*" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 </Project>

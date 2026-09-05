@@ -48,6 +48,18 @@ build-лога `NetTrader.Lean.Algorithm -> /Compile/bin/Algorithm.dll`), отс
 `cdn.quantconnect.com`): добавлен `/Compile/bin/models` как ещё один кандидат в
 `MlSignalAlphaModel.EnsureModelsLoaded`. Подробности и точные цитаты лога — `docs/PLAN.md`.
 
+## Ревизия: прогон #7 (run `33964709254`) — фикс не помог, найдена настоящая причина: models/ вне монтируемого пути
+
+Прогон на коммите с фиксом прошлой ревизии снова дал `Total Orders 0`, и лог поиска моделей всё ещё
+"NOT found" — уже включая добавленный `/Compile/bin/models`. Значит файлов не было ни по одному из путей
+физически. Причина — в самой сборке: `Restored /LeanCLI/NetTrader.Lean.Algorithm.csproj` показывает, что
+Lean CLI монтирует в Docker только каталог `Algorithm/` (как `/LeanCLI`), а `.csproj` копировал модели из
+`..\models` — на уровень выше, вне примонтированного каталога. Glob не находил ни одного файла, копировал
+ноль, `dotnet build` не предупреждал (пустой glob не ошибка). **Исправлено** (не проверено end-to-end):
+`ModelLong.zip`/`ModelShort.zip` перенесены из корня репозитория в `Algorithm/models/` (стандартная
+конвенция Lean CLI — проект самодостаточен), `.csproj` больше не ссылается на `..\`. Подробности —
+`docs/PLAN.md`.
+
 ## Обновления от Jules (PR #1, коммит `5130739`)
 
 Проверено построчным диффом против предыдущего состояния — изменения корректны:
@@ -85,7 +97,7 @@ build-лога `NetTrader.Lean.Algorithm -> /Compile/bin/Algorithm.dll`), отс
 - **ML-сигнал перенесён, не переписан**: `Algorithm/Alpha/MlFeatureBuilder.cs` — построчный порт
   `MLSignalService.ComputeFeatures` на той же версии `Skender.Stock.Indicators` (2.7.1, запинена в
   `.csproj`), чтобы фичи не разъехались с тем, на чём обучена модель. `MlSignalAlphaModel.cs` грузит
-  `ModelLong.zip`/`ModelShort.zip` (скопированы в `models/`, закоммичены — 2×~800KB, без Git LFS) через
+  `ModelLong.zip`/`ModelShort.zip` (скопированы в `Algorithm/models/`, закоммичены — 2×~800KB, без Git LFS) через
   `PredictionEngine`, применяет гейт входа `p ≥ p_breakeven(R) + margin` вместо старого абсолютного
   порога 0.60 и эвристического динамического гэпа.
 - SL/TP — **упрощённая** ATR-based версия (не полный volume-profile/HVN алгоритм из
@@ -139,9 +151,11 @@ Algorithm/
   Common/SymbolConfig.cs                     — 7 крипто-символов + группы корреляции (портировано из nettrader)
   Common/TradingOptions.cs                   — конфиг риска (портировано из nettrader)
   Common/MlSignalTag.cs                      — SL/TP/R в Insight.Tag (у LEAN Insight нет нативных полей)
+  models/                                    — ModelLong.zip/ModelShort.zip — закоммичены (см. .gitignore).
+                                                ВНУТРИ Algorithm/, не в корне репо — Lean CLI монтирует в
+                                                Docker только папку проекта, models/ выше неё не виден сборке.
 docs/PLAN.md                                 — полный план миграции с фазами и гейтами
 data/                                        — исторические данные LEAN (gitignored)
-models/                                      — ModelLong.zip/ModelShort.zip — закоммичены (см. .gitignore)
 ```
 
 ## Почему LEAN, а не самописный движок

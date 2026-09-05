@@ -320,6 +320,60 @@ MlSignalAlphaModel: Models NOT found. Searched in: models; /Lean/Launcher/bin/De
 полностью. Не блокирует текущий фикс, но нужно вернуться к этому после того, как бэктест начнёт давать
 реальные (не нулевые) сделки — тогда будет что реально коммитить как доказательство.
 
+## Ревизия: прогон #7 (run 33964709254) — фикс `/Compile/bin/models` НЕ помог, найдена настоящая причина
+
+Пользователь перезапустил `phase0-backtest.yml` на коммите с фиксом (`2e545b1`). CI снова `success`, реальный
+лог (job 101302682353) снова показывает **`Total Orders 0`** на всех 7 символах/годе. Строка поиска моделей
+теперь ДЕЙСТВИТЕЛЬНО содержит добавленный кандидат, но всё равно "NOT found":
+
+```
+Log: 2023-01-01 00:00:00 MlSignalAlphaModel: Models NOT found. Searched in: models;
+/Lean/Launcher/bin/Debug/models; /Lean/Launcher/bin/Debug/models; /Lean/Launcher/bin/Debug/models;
+/Lean/Launcher/bin/Debug/Algorithm/models; /Compile/bin/models; models; ../models; /models
+```
+
+Значит гипотеза "просто не в списке кандидатов" была неверной (точнее — недостаточной): дело не в том, что
+LEAN не туда смотрит, а в том, что **файлов `ModelLong.zip`/`ModelShort.zip` физически нет ни по одному из
+путей вообще** — они не скопировались при сборке внутри Docker-контейнера. Прямая улика — сама строка сборки
+из этого же лога: `Restored /LeanCLI/NetTrader.Lean.Algorithm.csproj` — Lean CLI монтирует в контейнер **только
+папку самого проекта** (`Algorithm/`) как `/LeanCLI`, а не весь репозиторий. Правило копирования моделей в
+`NetTrader.Lean.Algorithm.csproj` (строка 21):
+
+```xml
+<None Include="$(MSBuildThisFileDirectory)..\models\**\*.*" Link="models\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+```
+
+использует `..\models` — то есть `models/` **на уровень выше `Algorithm/`**, в корне репозитория. Это верно
+для локальной структуры репо (`models/` рядом с `Algorithm/`), но `..` от `/LeanCLI` (= `Algorithm/`) внутри
+контейнера указывает **за пределы примонтированного каталога** — там ничего нет, glob не находит ни одного
+файла, `CopyToOutputDirectory` копирует 0 файлов, `dotnet build` при этом не падает и не предупреждает (пустой
+glob — не ошибка MSBuild). Отсюда и "Build succeeded, 0 Warning(s), 0 Error(s)" при полностью отсутствующих
+моделях в собранном выводе — это объясняет, почему ни один из 8 путей-кандидатов (включая только что
+добавленный `/Compile/bin/models`) не сработал: искать было нечего ни по одному из них, потому что сам файл
+нигде не появился на диске контейнера.
+
+**Фикс (структурный, не ещё один путь-кандидат)**: модели должны физически лежать ВНУТРИ `Algorithm/`, чтобы
+Lean CLI видел их при монтировании только этой папки — стандартная конвенция Lean CLI (каждый проект
+самодостаточен).
+- `git mv models/ModelLong.zip Algorithm/models/ModelLong.zip`, аналогично `ModelShort.zip` (удалить пустой
+  корневой `models/` после переноса).
+- `.csproj` строка 21: убрать `..\` — `Include="$(MSBuildThisFileDirectory)models\**\*.*"` (теперь совпадает
+  с реальным расположением, Link на `models\...` не меняется).
+- `.gitignore`: убрать блок `/models/* + !/models/.gitkeep + !/models/ModelLong.zip + !/models/ModelShort.zip`
+  (путь больше не используется) и заменить существующую строку `/Algorithm/models/` (которая раньше игнорила
+  ВЕСЬ этот путь как build-output — теперь это уже не build-output, а исходники) на аналогичный
+  exclude-паттерн: `/Algorithm/models/*` + `!/Algorithm/models/ModelLong.zip` + `!/Algorithm/models/ModelShort.zip`.
+- `README.md`, раздел "Структура" — `models/` в дереве переехал под `Algorithm/models/`.
+- В `MlSignalAlphaModel.cs` кандидаты трогать не нужно — `_modelsDirectory` кандидат №1 (`"models"`,
+  относительный путь) уже это покроет, если рабочая директория при исполнении — `/Compile/bin` (что и
+  показывает лог: `NetTrader.Lean.Algorithm -> /Compile/bin/Algorithm.dll`, и модели теперь реально попадут
+  туда же при сборке). `/Compile/bin/models`, добавленный в прошлой ревизии, тоже подтвердит/продублирует это
+  — не убирать, он безвреден и это дополнительная защита.
+
+**Не проверено end-to-end** — та же причина (прокси блокирует `cdn.quantconnect.com`, `lean` CLI не
+запускается в песочнице). Подтвердится только по логу следующего реального прогона: искать
+`MlSignalAlphaModel: Found models in directory: ...` и `Total Orders` > 0.
+
 ## Очистка репозитория nettrader-lean
 
 Уже запушенный скелет (`Algorithm/`, `docs/PLAN.md`, `README.md`) **не содержит** ничего мульти-тенантного —
