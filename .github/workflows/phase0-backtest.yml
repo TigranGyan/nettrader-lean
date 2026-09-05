@@ -30,18 +30,25 @@ jobs:
         run: |
           lean login --user-id "$QC_USER_ID" --api-token "$QC_API_TOKEN"
 
-      # Must run BEFORE the data-download step below: run 33959341937 proved `lean init` refuses
-      # to run at all if a `data/` directory already exists ("Error: data already exists, please
-      # run this command in an empty directory") — it wants to create its own from scratch. Doing
-      # this first, then downloading our own historical data into data/crypto/binance/minute/
-      # afterward, avoids that conflict entirely instead of trying to reproduce lean.json by hand.
+      # Must run BEFORE the data-download step below: `lean init` refuses to run at all if a
+      # `data/` directory already exists ("Error: data already exists, please run this command in
+      # an empty directory") — it wants to create its own from scratch (fixed separately by no
+      # longer committing a data/.gitkeep placeholder). Doing this first, then downloading our own
+      # historical data into data/crypto/binance/minute/ afterward, avoids that conflict.
+      #
+      # Run 33960739790 got past the data-exists check (progress) but then looped forever on
+      # "What should the default language for new projects be? (python, csharp)" — `yes` alone
+      # only sends "y", which isn't a valid choice for that prompt, so it re-prompted until the
+      # 180s timeout killed it. Fixed by passing --language explicitly (a standard Click CLI option
+      # for exactly this kind of prompt) instead of relying on `yes` to guess free-text answers;
+      # `yes` is kept piped in as a fallback for any other plain y/n confirmations.
       #
       # UNVERIFIED end-to-end beyond this: this environment's egress proxy blocks
-      # cdn.quantconnect.com, so this reordering could not be tested locally before pushing — read
-      # the actual Actions log if this still fails rather than guessing further blind.
+      # cdn.quantconnect.com, so none of this could be tested locally before pushing — read the
+      # actual Actions log if this still fails rather than guessing further blind.
       - name: Initialize LEAN CLI workspace
         run: |
-          yes | timeout 180 lean init
+          yes | timeout 180 lean init --language csharp
           echo "--- lean.json after init attempt: ---"
           cat lean.json 2>&1 || echo "(no lean.json produced)"
 
